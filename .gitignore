@@ -7,6 +7,11 @@
 *.env
 !*.env.example        # keep the example templates
 
+# ----- API Key Test / Debug Scripts (NEVER commit these) -----
+test_api_key.py
+*test_api*.py
+*api_key_test*.py
+
 # ----- Python -----
 __pycache__/
 *.py[cod]
