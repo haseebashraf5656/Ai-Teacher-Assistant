@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload - QuizGen</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+        .header h1 { font-size: 28px; margin-bottom: 8px; }
+        .header p { opacity: 0.95; font-size: 14px; }
+        .content { padding: 40px 30px; }
+        .drag-drop-zone {
+            border: 2px dashed #667eea;
+            border-radius: 10px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #f0f9ff;
+            margin-bottom: 30px;
+        }
+        .drag-drop-zone:hover { border-color: #764ba2; background: #e0f2fe; }
+        .drag-drop-zone.dragover { background: #dbeafe; transform: scale(1.02); }
+        .drag-icon {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+        }
+        .file-input { display: none; }
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            width: 100%;
+        }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4); }
+        .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+        .message {
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        .message.show { display: block; }
+        .error { background: #fee2e2; color: #dc2626; border: 1px solid #fecaca; }
+        .success { background: #dcfce7; color: #16a34a; border: 1px solid #bbf7d0; }
+        .documents-list {
+            margin-top: 30px;
+            border-top: 2px solid #e5e7eb;
+            padding-top: 30px;
+        }
+        .documents-list h3 {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: #1f2937;
+        }
+        .document-item {
+            padding: 15px;
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .document-info { display: flex; align-items: center; gap: 10px; }
+        .document-icon { font-size: 24px; }
+        .document-details h4 { font-size: 14px; font-weight: 600; color: #1f2937; }
+        .document-details p { font-size: 12px; color: #6b7280; }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📤 Upload Materials</h1>
+            <p>Upload your teaching materials (PDF, TXT, PPT)</p>
+        </div>
+        <div class="content">
+            <a href="dashboard.html" class="back-link">← Back to Dashboard</a>
+            
+            <div id="errorMessage" class="message error"></div>
+            <div id="successMessage" class="message success"></div>
+
+            <div class="drag-drop-zone" id="dropZone">
+                <div class="drag-icon">📄</div>
+                <h3>Drag & Drop your file here</h3>
+                <p>or</p>
+                <input type="file" id="fileInput" class="file-input" accept=".pdf,.txt,.ppt,.pptx">
+                <label for="fileInput" class="btn btn-primary" style="width: auto; display: inline-block;">Choose File</label>
+                <p style="margin-top: 15px; font-size: 12px; color: #6b7280;">Supported: PDF, TXT, PPT, PPTX (Max 10MB). For best results, use .pptx files with selectable text.</p>
+            </div>
+
+            <button id="uploadBtn" class="btn btn-primary" style="display: none;">Upload File</button>
+
+            <div class="documents-list" id="documentsList">
+                <h3>📚 Your Documents</h3>
+                <div id="docsContainer"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://127.0.0.1:8000';
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        const uploadBtn = document.getElementById('uploadBtn');
+        const errorMessage = document.getElementById('errorMessage');
+        const successMessage = document.getElementById('successMessage');
+        const docsContainer = document.getElementById('docsContainer');
+        let selectedFile = null;
+
+        // Check authentication
+        const token = localStorage.getItem('token');
+        if (!token) {
+            window.location.href = 'login.html';
+        }
+
+        // Load documents on page load
+        loadDocuments();
+
+        // Drag and drop
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('dragover');
+        });
+
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('dragover');
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                selectedFile = files[0];
+                showUploadButton();
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                selectedFile = e.target.files[0];
+                showUploadButton();
+            }
+        });
+
+        function showUploadButton() {
+            uploadBtn.style.display = 'block';
+            uploadBtn.textContent = `Upload: ${selectedFile.name}`;
+        }
+
+        function formatApiError(detail, fallback) {
+            if (Array.isArray(detail)) {
+                return detail.map(item => item.msg || item.message || JSON.stringify(item)).join(', ');
+            }
+            return detail || fallback;
+        }
+
+        function isSupportedUpload(file) {
+            const allowedExtensions = ['.pdf', '.txt', '.ppt', '.pptx'];
+            const name = file.name.toLowerCase();
+            return allowedExtensions.some(ext => name.endsWith(ext));
+        }
+
+        uploadBtn.addEventListener('click', async () => {
+            if (!selectedFile) return;
+
+            if (!isSupportedUpload(selectedFile)) {
+                errorMessage.textContent = 'Unsupported file type. Please upload a PDF, TXT, PPT, or PPTX file.';
+                errorMessage.classList.add('show');
+                return;
+            }
+
+            if (selectedFile.size > 10 * 1024 * 1024) {
+                errorMessage.textContent = 'File is too large. Maximum size is 10MB.';
+                errorMessage.classList.add('show');
+                return;
+            }
+
+            errorMessage.classList.remove('show');
+            successMessage.classList.remove('show');
+
+            const formData = new FormData();
+            formData.append('file', selectedFile);
+
+            uploadBtn.disabled = true;
+            uploadBtn.textContent = 'Uploading...';
+
+            try {
+                const response = await fetch(`${API_URL}/api/documents/upload`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(formatApiError(data.detail, 'Upload failed'));
+                }
+
+                successMessage.textContent = `✅ ${data.filename} uploaded successfully!`;
+                successMessage.classList.add('show');
+                selectedFile = null;
+                fileInput.value = '';
+                uploadBtn.style.display = 'none';
+                loadDocuments();
+
+            } catch (error) {
+                errorMessage.textContent = error.message;
+                errorMessage.classList.add('show');
+            } finally {
+                uploadBtn.disabled = false;
+                uploadBtn.textContent = 'Upload File';
+            }
+        });
+
+        async function loadDocuments() {
+            try {
+                const response = await fetch(`${API_URL}/api/documents/list`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) throw new Error('Failed to load documents');
+
+                if (data.documents.length === 0) {
+                    docsContainer.innerHTML = '<p style="color: #6b7280; text-align: center;">No documents uploaded yet</p>';
+                    return;
+                }
+
+                docsContainer.innerHTML = data.documents.map(doc => `
+                    <div class="document-item">
+                        <div class="document-info">
+                            <span class="document-icon">📄</span>
+                            <div class="document-details">
+                                <h4>${doc.filename}</h4>
+                                <p>Uploaded: ${new Date(doc.uploaded_at).toLocaleDateString()} • ID: ${doc.id}</p>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+
+            } catch (error) {
+                console.error('Error loading documents:', error);
+            }
+        }
+    </script>
+</body>
+</html>

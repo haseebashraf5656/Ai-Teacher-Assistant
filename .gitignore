@@ -1,0 +1,79 @@
+# ============================================================
+#  AI Teacher Assistant — .gitignore
+# ============================================================
+
+# ----- Secrets & Environment Variables -----
+.env
+*.env
+!*.env.example        # keep the example templates
+
+# ----- Python -----
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+*.pyd
+.Python
+pip-log.txt
+pip-delete-this-directory.txt
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.log
+.pytest_cache/
+htmlcov/
+
+# Virtual Environments
+venv/
+env/
+ENV/
+.venv/
+.env/
+
+# Distribution / Packaging
+dist/
+build/
+*.egg-info/
+*.egg
+MANIFEST
+*.whl
+
+# ----- Databases -----
+*.db
+*.sqlite
+*.sqlite3
+
+# ----- Node.js / Frontend -----
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+.npm
+.yarn/
+
+# Build output
+/dist
+/build
+/.next
+/.nuxt
+/.output
+
+# ----- IDE & Editor -----
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# ----- OS -----
+Desktop.ini
+ehthumbs.db
+$RECYCLE.BIN/

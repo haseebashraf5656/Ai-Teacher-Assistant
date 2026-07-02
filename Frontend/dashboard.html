@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - QuizGen</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f3f4f6;
+            min-height: 100vh;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header h1 { font-size: 28px; }
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: white;
+            color: #667eea;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+        }
+        .logout-btn {
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid white;
+            color: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .logout-btn:hover { background: rgba(255, 255, 255, 0.3); }
+        .container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+        .welcome {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+        .welcome h2 { font-size: 24px; color: #1f2937; margin-bottom: 8px; }
+        .welcome p { color: #6b7280; }
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .action-card {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+        .action-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+        .action-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+        .action-card h3 { font-size: 18px; margin-bottom: 8px; color: #1f2937; }
+        .action-card p { font-size: 14px; color: #6b7280; }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .stat-value {
+            font-size: 36px;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 8px;
+        }
+        .stat-label {
+            font-size: 14px;
+            color: #6b7280;
+            font-weight: 500;
+        }
+        .recent-section {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .recent-section h3 {
+            font-size: 20px;
+            margin-bottom: 20px;
+            color: #1f2937;
+        }
+        .recent-item {
+            padding: 15px;
+            background: #f9fafb;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .recent-item-info h4 {
+            font-size: 14px;
+            color: #1f2937;
+            margin-bottom: 4px;
+        }
+        .recent-item-info p {
+            font-size: 12px;
+            color: #6b7280;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <h1>📚 QuizGen Dashboard</h1>
+            <div class="user-info">
+                <div class="user-avatar" id="userAvatar">U</div>
+                <span id="userName">Loading...</span>
+                <button class="logout-btn" onclick="logout()">Logout</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="welcome">
+            <h2 id="welcomeText">Welcome back!</h2>
+            <p>Here's what's happening with your quizzes today</p>
+        </div>
+
+        <div class="quick-actions">
+            <a href="upload.html" class="action-card">
+                <div class="action-icon">📤</div>
+                <h3>Upload Materials</h3>
+                <p>Upload your teaching documents</p>
+            </a>
+            <a href="quiz-generator.html" class="action-card">
+                <div class="action-icon">✨</div>
+                <h3>Generate Quiz</h3>
+                <p>Create AI-powered quizzes</p>
+            </a>
+            <a href="grading.html" class="action-card">
+                <div class="action-icon">✅</div>
+                <h3>Grade Answers</h3>
+                <p>Auto-grade with AI feedback</p>
+            </a>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value" id="totalDocs">0</div>
+                <div class="stat-label">Documents</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="totalQuizzes">0</div>
+                <div class="stat-label">Quizzes Created</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="totalGradings">0</div>
+                <div class="stat-label">Answers Graded</div>
+            </div>
+        </div>
+
+        <div class="recent-section">
+            <h3>📝 Recent Quizzes</h3>
+            <div id="recentQuizzes"></div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://127.0.0.1:8000';
+        const token = localStorage.getItem('token');
+        
+        if (!token) {
+            window.location.href = 'login.html';
+        }
+
+        // Load user info
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        if (user.full_name) {
+            document.getElementById('userName').textContent = user.full_name;
+            document.getElementById('welcomeText').textContent = `Welcome back, ${user.full_name}!`;
+            document.getElementById('userAvatar').textContent = user.full_name.charAt(0).toUpperCase();
+        }
+
+        // Load dashboard data
+        loadDashboardData();
+
+        async function loadDashboardData() {
+            try {
+                // Load documents
+                const docsResponse = await fetch(`${API_URL}/api/documents/list`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const docsData = await docsResponse.json();
+                document.getElementById('totalDocs').textContent = docsData.documents.length;
+
+                // Load quizzes
+                const quizzesResponse = await fetch(`${API_URL}/api/quiz/list`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const quizzesData = await quizzesResponse.json();
+                document.getElementById('totalQuizzes').textContent = quizzesData.quizzes.length;
+
+                // Load gradings
+                const gradingsResponse = await fetch(`${API_URL}/api/grading/history`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const gradingsData = await gradingsResponse.json();
+                document.getElementById('totalGradings').textContent = gradingsData.gradings.length;
+
+                // Display recent quizzes
+                displayRecentQuizzes(quizzesData.quizzes);
+
+            } catch (error) {
+                console.error('Error loading dashboard data:', error);
+            }
+        }
+
+        function displayRecentQuizzes(quizzes) {
+            const container = document.getElementById('recentQuizzes');
+            
+            if (quizzes.length === 0) {
+                container.innerHTML = '<p style="color: #6b7280; text-align: center;">No quizzes created yet</p>';
+                return;
+            }
+
+            container.innerHTML = quizzes.slice(0, 5).map(quiz => `
+                <div class="recent-item">
+                    <div class="recent-item-info">
+                        <h4>Quiz #${quiz.id} - ${quiz.difficulty}</h4>
+                        <p>Created: ${new Date(quiz.created_at).toLocaleDateString()}</p>
+                    </div>
+                    <span style="color: #667eea; font-weight: 600;">${quiz.questions.questions.length} questions</span>
+                </div>
+            `).join('');
+        }
+
+        function logout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.href = 'login.html';
+        }
+    </script>
+</body>
+</html>
